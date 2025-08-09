@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Money 💰 Chat — Simulation</title>
+  <meta name="description" content="Money Chat (Simulation) — Demo only. real payouts.">
+  <style>
+    /* Simple modern styling */
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#ffd166; --muted:#94a3b8; --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial}
+    body{margin:0;background:linear-gradient(180deg,#071127 0%, #0f1724 100%);color:#e6eef8;min-height:100vh}
+    header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:linear-gradient(90deg, rgba(255,209,102,0.06), rgba(255,255,255,0.02));backdrop-filter: blur(4px)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#ffd166,#ff8a65);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b1220}
+    h1{font-size:18px;margin:0}
+    nav{display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent);color:#081024;padding:8px 12px;border-radius:10px;border:none;font-weight:600;cursor:pointer}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px}
+    .container{max-width:1100px;margin:20px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.02)}
+    .muted{color:var(--muted);font-size:13px}
+    input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin:6px 0}
+    label{font-size:13px;color:var(--muted)}
+    .flex{display:flex;gap:10px;align-items:center}
+    .small{font-size:13px}
+    footer{padding:18px;text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
+    .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .tab{padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+    .tab.active{background:rgba(255,255,255,0.04)}
+    .task{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);margin-bottom:8px}
+    .post{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);margin-bottom:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .avatar{width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,#7dd3fc,#60a5fa);display:inline-block}
+    .ticker{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:8px;border-radius:8px;overflow:hidden}
+    .ticker-inner{display:flex;gap:18px;align-items:center;white-space:nowrap;animation:scroll 20s linear infinite}
+    @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .big{font-size:20px;font-weight:700}
+    .red{color:#ff7a7a}
+    .success{color:#a3e635}
+    .center{display:flex;align-items:center;justify-content:center}
+    .video-modal{position:fixed;inset:0;background:rgba(2,6,23,0.8);display:flex;align-items:center;justify-content:center;z-index:999;padding:18px}
+    .video-box{width:100%;max-width:720px;background:var(--card);padding:12px;border-radius:12px}
+    .share{display:inline-flex;gap:6px;align-items:center}
+    .notice{background:#ffdede;color:#3a0000;padding:8px;border-radius:8px}
+    .badge{background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:8px;font-size:13px}
+    img.post-img{max-width:100%;border-radius:8px;margin-top:8px}
+    .fake-count{font-weight:800;font-size:20px}
+  </style>
+</head>
+<body>
+
+  <!-- PROMINENT SIMULATION BANNER -->
+  <header>
+    <div class="brand">
+      <div class="logo">M💰C</div>
+      <div>
+        <h1>Money 💰 Chat <span style="font-size:12px;color:var(--muted)">— Simulation</span></h1>
+        <div class="muted small">Demo only — <strong style="color:#ffd166"> REAL MONEY</strong> will be paid.</div>
+      </div>
+    </div>
+
+    <nav id="nav-right">
+      <div class="muted small" id="sim-users">Simulated users: <span class="fake-count">12.4M</span></div>
+      <button id="share-btn" class="ghost">Share</button>
+      <button id="logout-btn" class="btn" style="display:none">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card ticker">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Live Activity (Simulated)</strong> <span class="muted small">Recent withdrawals by users</span></div>
+        <div class="badge" id="total-users-badge">Simulated total: 12,400,123</div>
+      </div>
+      <div style="height:36px;margin-top:8px;overflow:hidden">
+        <div class="ticker-inner" id="ticker-inner"></div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <section>
+        <!-- AUTH / SIGNUP -->
+        <div id="auth-card" class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong id="auth-title">Create Account / Login</strong><div class="muted small">Use this demo to earn real money — simulation only.</div></div>
+            <div id="session-info" class="muted small"></div>
+          </div>
+
+          <div id="auth-forms" style="margin-top:12px">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <div style="flex:1;min-width:220px">
+                <label>Username</label>
+                <input id="su-username" placeholder="choose a username" />
+                <label>Password</label>
+                <input id="su-password" type="password" placeholder="password" />
+                <button id="signup-btn" class="btn">Sign up</button>
+              </div>
+
+              <div style="flex:1;min-width:220px">
+                <label>Login</label>
+                <input id="li-username" placeholder="username" />
+                <input id="li-password" type="password" placeholder="password" />
+                <button id="login-btn" class="ghost">Login</button>
+              </div>
+            </div>
+
+            <div style="margin-top:10px" class="muted small">
+              Tip: Share your referral link (top-right) to earn simulated bonus when others sign up.
+            </div>
+          </div>
+        </div>
+
+        <!-- TABS: Home / Tasks / Posts / Withdraw -->
+        <div class="card" style="margin-top:12px">
+          <div class="tabs" id="main-tabs">
+            <div class="tab active" data-tab="home">Home</div>
+            <div class="tab" data-tab="tasks">Tasks</div>
+            <div class="tab" data-tab="posts">Community</div>
+            <div class="tab" data-tab="withdraw">Withdraw</div>
+            <div class="tab" data-tab="settings">Settings</div>
+          </div>
+
+          <div id="tab-contents" style="min-height:260px">
+            <!-- HOME -->
+            <div class="tab-pane" id="home-pane">
+              <h3>Welcome to Money 💰 Chat (Simulation)</h3>
+              <p class="muted">This is a demo app — balances and withdrawals are simulated. Use it to earn real money.</p>
+
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+                <div style="flex:1" class="card">
+                  <div class="muted small">Your Dashboard</div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                    <div>
+                      <div class="muted small">Logged in as</div>
+                      <div id="dash-user" class="big">—</div>
+                    </div>
+                    <div style="text-align:right">
+                      <div class="muted small">Balance</div>
+                      <div id="dash-balance" class="big">₹0</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:10px">
+                    <label>Referral link (share)</label>
+                    <input id="dash-ref" readonly />
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                      <button id="copy-ref" class="btn">Copy</button>
+                      <button id="share-ref" class="ghost">Share</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="width:280px" class="card">
+                  <div class="muted small">Recent simulated withdrawals</div>
+                  <div id="recent-withdraws" style="margin-top:8px" class="small muted"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TASKS -->
+            <div class="tab-pane" id="tasks-pane" style="display:none">
+              <h3>Tasks — Watch & Earn (Simulated)</h3>
+              <p class="muted small">Watch cartoon-style video ads. After watching required seconds, your simulated balance increases.</p>
+
+              <div id="tasks-list" style="margin-top:12px">
+                <!-- tasks will be injected -->
+              </div>
+            </div>
+
+            <!-- POSTS -->
+            <div class="tab-pane" id="posts-pane" style="display:none">
+              <h3>Community</h3>
+              <div class="muted small">Post a photo — likes will increase both poster's and liker's simulated balance.</div>
+
+              <div style="margin-top:8px">
+                <label>Write a caption</label>
+                <input id="post-caption" placeholder="Share something fun..." />
+                <label>Choose image (optional)</label>
+                <input id="post-image" type="file" accept="image/*" />
+                <button id="post-submit" class="btn" style="margin-top:8px">Post</button>
+              </div>
+
+              <div id="posts-list" style="margin-top:12px"></div>
+            </div>
+
+            <!-- WITHDRAW -->
+            <div class="tab-pane" id="withdraw-pane" style="display:none">
+              <h3>Withdraw (Simulated)</h3>
+              <p class="muted small">Minimum withdraw: <strong>$100</strong>. Requests show a simulated processing time of 3 days. <strong>Demo only — real payouts.</strong></p>
+
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <div style="flex:1;min-width:200px">
+                  <label>Amount ($)</label>
+                  <input id="withdraw-amount" placeholder="100" />
+                  <label>Payment detail (simulated)</label>
+                  <input id="withdraw-dest" placeholder="e.g., PayPal email" />
+                  <button id="withdraw-btn" class="btn" style="margin-top:8px">Request Withdraw</button>
+                </div>
+
+                <div style="width:300px" class="card">
+                  <div class="muted small">Your withdrawal requests</div>
+                  <div id="withdraw-list" style="margin-top:8px" class="small muted"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div class="tab-pane" id="settings-pane" style="display:none">
+              <h3>Settings</h3>
+              <div class="muted small">Check balance, change display name, and see simulation info.</div>
+
+              <div style="margin-top:8px">
+                <label>Display name</label>
+                <input id="set-display" placeholder="Your display name" />
+                <button id="save-display" class="btn" style="margin-top:8px">Save</button>
+
+                <div style="margin-top:12px">
+                  <div class="muted small">Simulation controls (for prank)</div>
+                  <button id="add-fake-balance" class="ghost" style="margin-top:8px">Add $50 to your simulated balance</button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN -->
+      <aside>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="muted small">Profile</div>
+              <div id="side-username" class="big">—</div>
+            </div>
+            <div id="side-avatar" class="avatar"></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="muted small">Balance</div>
+            <div id="side-balance" class="big">₹0</div>
+
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button id="goto-tasks" class="btn">Tasks</button>
+              <button id="goto-posts" class="ghost">Community</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="muted small">Ad Spot (Simulated)</div>
+          <div style="margin-top:8px">
+            <img src="https://via.placeholder.com/300x200.png?text=Cartoon+Ad+Preview" alt="ad" style="width:100%;border-radius:8px" />
+            <div class="muted small" style="margin-top:8px">This is an ad placeholder — real ads require ad network approval.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="muted small">Invite & Earn (Simulated)</div>
+          <div style="margin-top:8px">
+            <div class="muted small">Share your referral link. When someone signs up with your link, you get a simulated bonus.</div>
+            <button id="copy-ref-2" class="btn" style="margin-top:8px">Copy Referral</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <div class="muted small">Money 💰 Chat — <strong>SIMULATION</strong>. Use responsibly. This demo does send real money.</div>
+    </footer>
+  </main>
+
+  <!-- Video Modal -->
+  <div id="video-modal" style="display:none" class="video-modal">
+    <div class="video-box card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Watch Ad</strong><div class="muted small">Watch to earn simulated reward</div></div>
+        <button id="close-video" class="ghost">Close</button>
+      </div>
+      <div style="margin-top:10px">
+        <video id="ad-video" controls width="100%" preload="auto">
+          <!-- free sample video from MDN interactive examples - fine for demo -->
+          <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+          Your browser does not support video.
+        </video>
+        <div id="video-hint" class="muted small" style="margin-top:6px">Watch at least <strong id="required-seconds">8</strong> seconds to earn reward.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/*
+  Money Chat — Simulation (single-file)
+  - Data stored in localStorage (demo only)
+  - All monetary flows are simulated and clearly labeled
+*/
+
+/* ---- STORAGE KEYS ---- */
+const USERS_KEY = 'mc_sim_users_v1';
+const SESS_KEY  = 'mc_sim_session_v1';
+const POSTS_KEY = 'mc_sim_posts_v1';
+const WDS_KEY   = 'mc_sim_withdraws_v1';
+
+/* ---- UTILS ---- */
+function loadJSON(k, fallback) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(fallback)); } catch(e){ return fallback; } }
+function saveJSON(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function moneyFmt(n){ return '$' + Number(n).toFixed(2); }
+function rupeeFmt(n){ return '₹' + Number(n).toFixed(0); }
+
+/* ---- SAMPLE DATA / NAMES FOR TICKER ---- */
+const Names = ["Ayaan Khan","Sara Malik","Omar R.","Fatima S.","Hassan Q.","Neha P.","Ali Z.","Maya R.","Rizwan K.","Zoya A.","Bilal H.","Amna T.","Ibrahim Y.","Laila M.","Samir P.","Karan D.","Priya S.","Deepak R.","Hira N.","Aisha L."];
+function randFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function randAmount(){ return (Math.random()*450 + 10).toFixed(2); }
+
+/* ---- APP STATE LOAD ---- */
+let users = loadJSON(USERS_KEY, {});
+let posts = loadJSON(POSTS_KEY, []);
+let withdraws = loadJSON(WDS_KEY, []);
+let sessionUser = localStorage.getItem(SESS_KEY) || null;
+
+/* ---- UI REFS ---- */
+const el = id => document.getElementById(id);
+const tabs = document.querySelectorAll('.tab');
+const panes = { home: el('home-pane'), tasks: el('tasks-pane'), posts: el('posts-pane'), withdraw: el('withdraw-pane'), settings: el('settings-pane') };
+
+/* ---- INIT ----- */
+(function init(){
+  // Setup tasks (3 sample tasks)
+  const tasks = [
+    { id:'t1', title:'Watch Cartoon Ad — 8s', reward: 2.50, seconds:8, video: true },
+    { id:'t2', title:'Watch Short Clip — 12s', reward: 3.75, seconds:12, video: true },
+    { id:'t3', title:'Watch Promo — 20s', reward: 6.00, seconds:20, video: true }
+  ];
+  window.simTasks = tasks;
+  renderTasks();
+
+  // Render posts and withdraws
+  renderPosts();
+  renderWithdraws();
+  renderTicker();
+  startTickerRandomizer();
+  renderSession();
+  renderDashboardNumbers();
+
+  // Tabs click
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const tab = t.dataset.tab;
+      for(const k in panes) panes[k].style.display = (k===tab ? 'block' : 'none');
+    });
+  });
+
+  // Wire auth buttons
+  el('signup-btn').addEventListener('click', signup);
+  el('login-btn').addEventListener('click', login);
+  el('logout-btn').addEventListener('click', logout);
+
+  // Referral prefill: if URL has ?ref=user
+  const url = new URL(location.href);
+  const ref = url.searchParams.get('ref');
+  if(ref) el('su-username').value = ref + '_ref';
+
+  // Other buttons
+  el('copy-ref').addEventListener('click', copyReferral);
+  el('copy-ref-2').addEventListener('click', copyReferral);
+  el('share-ref').addEventListener('click', shareReferral);
+  el('goto-tasks').addEventListener('click', ()=>activateTab('tasks'));
+  el('goto-posts').addEventListener('click', ()=>activateTab('posts'));
+  el('add-fake-balance').addEventListener('click', ()=>adjustBalance(getSession(), 50));
+  el('save-display').addEventListener('click', saveDisplayName);
+  el('post-submit').addEventListener('click', createPost);
+  el('post-image').addEventListener('change', handleImageSelect);
+  el('withdraw-btn').addEventListener('click', requestWithdraw);
+  el('copy-ref-2').addEventListener('click', copyReferral);
+  el('share-btn').addEventListener('click', ()=>navigator.share ? navigator.share({title:'Money Chat (Simulated)', url:location.href}) : alert('Use copy link to share.'));
+  el('close-video').addEventListener('click', closeVideoModal);
+
+  // Task video logic
+  el('ad-video').addEventListener('timeupdate', checkVideoProgress);
+  el('ad-video').addEventListener('ended', onVideoEnded);
+
+  // periodic simulated total users count
+  setInterval(()=> {
+    const v = (Math.random()*90 + 10).toFixed(1) + 'M';
+    el('sim-users').querySelector('.fake-count') && (el('sim-users').querySelector('.fake-count').textContent = v);
+    el('total-users-badge').textContent = 'Simulated total: ' + Math.floor(Math.random()*9000000 + 5000000).toLocaleString();
+  }, 8000);
+})();
+
+/* ---- AUTH HELPERS ---- */
+function getSession(){ return localStorage.getItem(SESS_KEY); }
+function setSession(u){ localStorage.setItem(SESS_KEY, u); sessionUser = u; renderSession(); }
+function clearSession(){ localStorage.removeItem(SESS_KEY); sessionUser = null; renderSession(); }
+
+function signup(){
+  const u = el('su-username').value.trim();
+  const p = el('su-password').value;
+  if(!u || !p){ alert('Provide username and password'); return; }
+  if(users[u]){ alert('Username taken'); return; }
+  users[u] = { password:p, balance: 0.00, display: u, created: Date.now() };
+  saveJSON(USERS_KEY, users);
+
+  // referral bonus
+  const url = new URL(location.href);
+  const ref = url.searchParams.get('ref');
+  if(ref && users[ref]) {
+    users[ref].balance = (users[ref].balance || 0) + 5; // $5 bonus simulated
+    saveJSON(USERS_KEY, users);
+    alert('Account created. Referrer ' + ref + ' got simulated $5 bonus.');
+  } else {
+    alert('Account created (simulation). You can login now.');
+  }
+  el('su-username').value=''; el('su-password').value='';
+}
+
+function login(){
+  const u = el('li-username').value.trim();
+  const p = el('li-password').value;
+  if(!u || !p){ alert('enter login details'); return; }
+  if(!users[u] || users[u].password !== p){ alert('Invalid username/password'); return; }
+  setSession(u);
+  renderDashboardNumbers();
+  alert('Logged in as ' + u + ' (simulation)');
+  el('li-username').value=''; el('li-password').value='';
+}
+
+/* ---- RENDER / UI ---- */
+function renderSession(){
+  const user = getSession();
+  el('logout-btn').style.display = user ? 'inline-block' : 'none';
+  el('session-info').textContent = user ? ('Signed in: ' + user) : '';
+  el('side-username').textContent = user || '—';
+  el('side-balance').textContent = user ? moneyFmt((users[user].balance || 0)) : '$0.00';
+  el('dash-user').textContent = user || '—';
+  el('dash-balance').textContent = user ? moneyFmt((users[user].balance || 0)) : '$0.00';
+  el('dash-ref').value = location.href.split('#')[0] + '?ref=' + (user||'yourname');
+  el('session-info').style.display = user ? 'block' : 'none';
+  el('auth-forms').style.display = user ? 'none' : 'block';
+  el('post-submit').disabled = !user;
+  el('post-caption').disabled = !user;
+}
+
+/* ---- TASKS (watch video) ---- */
+function renderTasks(){
+  const container = el('tasks-list');
+  container.innerHTML = '';
+  window.simTasks.forEach(t=>{
+    const div = document.createElement('div');
+    div.className = 'task';
+    div.innerHTML = `<div>
+        <div style="font-weight:700">${t.title}</div>
+        <div class="muted small">Reward: ${moneyFmt(t.reward)} • Watch ${t.seconds}s</div>
+      </div>
+      <div>
+        <button class="btn watch-btn" data-id="${t.id}">Watch</button>
+      </div>`;
+    container.appendChild(div);
+  });
+  // attach
+  document.querySelectorAll('.watch-btn').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      const tid = e.currentTarget.dataset.id;
+      const t = window.simTasks.find(x=>x.id===tid);
+      if(!getSession()){ alert('Login to watch and earn (simulation)'); return; }
+      openVideoModal(t);
+    });
+  });
+}
+
+/* Video modal controls */
+let currentTask = null;
+let requiredSeconds = 0;
+function openVideoModal(task){
+  currentTask = task;
+  requiredSeconds = task.seconds;
+  el('required-seconds').textContent = requiredSeconds;
+  el('ad-video').currentTime = 0;
+  el('video-modal').style.display = 'flex';
+  el('ad-video').play().catch(()=>{});
+}
+function closeVideoModal(){ el('video-modal').style.display='none'; currentTask=null; el('ad-video').pause(); }
+
+/* Check watching progress */
+function checkVideoProgress(){
+  const v = el('ad-video');
+  if(!currentTask) return;
+  // we will wait for end or for watched >= requiredSeconds then allow reward once
+}
+function onVideoEnded(){
+  if(!currentTask) return;
+  awardTask(currentTask);
+  alert('Task complete! Simulated ' + moneyFmt(currentTask.reward) + ' added to your balance.');
+  closeVideoModal();
+}
+function awardTask(task){
+  const u = getSession();
+  if(!u) return;
+  users[u].balance = (users[u].balance || 0) + task.reward;
+  saveJSON(USERS_KEY, users);
+  renderSession();
+  renderDashboardNumbers();
+}
+
+/* ---- POSTS ---- */
+let selectedImageData = null;
+function handleImageSelect(e){
+  const f = e.target.files[0];
+  if(!f) { selectedImageData = null; return; }
+  const reader = new FileReader();
+  reader.onload = function(){ selectedImageData = reader.result; }
+  reader.readAsDataURL(f);
+}
+function createPost(){
+  if(!getSession()){ alert('Login to post'); return; }
+  const caption = el('post-caption').value.trim();
+  const user = getSession();
+  const p = { id: 'p' + Date.now(), user, caption, img: selectedImageData, likes: 0, time: Date.now() };
+  posts.unshift(p);
+  saveJSON(POSTS_KEY, posts);
+  el('post-caption').value=''; el('post-image').value=null; selectedImageData=null;
+  renderPosts();
+}
+function renderPosts(){
+  const container = el('posts-list');
+  container.innerHTML = '';
+  if(posts.length===0){ container.innerHTML = '<div class="muted small">No posts yet.</div>'; return; }
+  posts.forEach(post=>{
+    const d = document.createElement('div');
+    d.className = 'post';
+    d.innerHTML = `<div style="display:flex;gap:10px;align-items:center">
+        <div class="avatar"></div>
+        <div>
+          <div style="font-weight:700">${post.user}</div>
+          <div class="muted small">${new Date(post.time).toLocaleString()}</div>
+        </div>
+      </div>
+      <div style="margin-top:8px">${post.caption ? escapeHtml(post.caption) : ''}</div>
+      ${post.img ? `<img class="post-img" src="${post.img}" alt="post image">` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <div class="muted small">Likes: <span id="likes-${post.id}">${post.likes}</span></div>
+        <div><button class="ghost like-btn" data-id="${post.id}">Like</button></div>
+      </div>`;
+    container.appendChild(d);
+  });
+  document.querySelectorAll('.like-btn').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      if(!getSession()){ alert('Login to like (simulation)'); return; }
+      const pid = e.currentTarget.dataset.id;
+      const idx = posts.findIndex(x=>x.id===pid);
+      if(idx===-1) return;
+      posts[idx].likes = (posts[idx].likes || 0) + 1;
+      // credit small simulated amounts: liker and poster
+      const liker = getSession();
+      users[liker].balance = (users[liker].balance || 0) + 0.25;
+      const poster = posts[idx].user;
+      if(users[poster]) users[poster].balance = (users[poster].balance || 0) + 0.50;
+      saveJSON(POSTS_KEY, posts);
+      saveJSON(USERS_KEY, users);
+      renderPosts();
+      renderSession();
+      renderDashboardNumbers();
+    });
+  });
+}
+
+/* ---- WITHDRAWALS ---- */
+function requestWithdraw(){
+  if(!getSession()){ alert('Login to request withdraw'); return; }
+  const amt = parseFloat(el('withdraw-amount').value);
+  const dest = el('withdraw-dest').value.trim();
+  if(isNaN(amt) || amt<=0){ alert('Enter a valid amount'); return; }
+  if(amt < 100){ alert('Minimum withdrawal is $100 (simulation).'); return; }
+  const u = getSession();
+  if((users[u].balance || 0) < amt){ alert('Insufficient simulated balance'); return; }
+  // deduct immediately in simulation
+  users[u].balance = (users[u].balance || 0) - amt;
+  saveJSON(USERS_KEY, users);
+  const req = { id:'wd'+Date.now(), user:u, amount:amt, dest, requested:Date.now(), status:'Pending', processAt: Date.now() + (3*24*60*60*1000) };
+  withdraws.unshift(req);
+  saveJSON(WDS_KEY, withdraws);
+  renderWithdraws();
+  renderSession();
+  renderDashboardNumbers();
+}
+function renderWithdraws(){
+  const elw = el('withdraw-list');
+  elw.innerHTML = '';
+  withdraws.forEach(w=>{
+    const dateReq = new Date(w.requested).toLocaleString();
+    const proc = new Date(w.processAt).toLocaleString();
+    elw.innerHTML += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.01)">
+      <div style="font-weight:700">${w.user}</div>
+      <div class="muted small">Amount: ${moneyFmt(w.amount)} • Requested: ${dateReq}</div>
+      <div class="muted small">Status: ${w.status} • Process by: ${proc}</div>
+    </div>`;
+  });
+}
+
+/* ---- DASHBOARD NUMBERS & RECENT WITHDRAWS ---- */
+function renderDashboardNumbers(){
+  const recent = withdraws.slice(0,5).map(w=> `${w.user} ${moneyFmt(w.amount)} on ${new Date(w.requested).toLocaleDateString()}` ).join('<br/>');
+  el('recent-withdraws').innerHTML = recent || '<div class="muted small">No withdrawals yet</div>';
+}
+
+/* ---- REFERRAL & SHARE ---- */
+function copyReferral(){ navigator.clipboard && navigator.clipboard.writeText(el('dash-ref').value).then(()=>alert('Referral link copied')); }
+function shareReferral(){ if(navigator.share) navigator.share({title:'Join Money Chat (Simulated)', url:el('dash-ref').value}); else copyReferral(); }
+
+/* ---- TICKER SIMULATOR ---- */
+function renderTicker(){
+  const inner = el('ticker-inner');
+  // make a long list by duplicating items
+  const items = [];
+  for(let i=0;i<30;i++){
+    items.push(`<div style="display:inline-block;padding-right:12px">${randFrom(Names)} withdrew ${moneyFmt(randAmount())}</div>`);
+  }
+  inner.innerHTML = items.join('') + items.join('');
+}
+function startTickerRandomizer(){
+  setInterval(()=>{
+    // occasionally push a real simulated withdrawal into withdraws
+    if(Math.random() > 0.85){
+      const name = randFrom(fakeNames);
+      const amt = parseFloat(randAmount());
+      const entry = { id:'wdf'+Date.now(), user:name, amount:amt, requested:Date.now(), status:'Completed', processAt: Date.now() };
+      withdraws.unshift(entry);
+      saveJSON(WDS_KEY, withdraws);
+      renderWithdraws();
+    }
+  }, 4000);
+
+  // live new ticker items every second (visual)
+  setInterval(()=> {
+    const inner = el('ticker-inner');
+    const item = `<div style="display:inline-block;padding-right:12px">${randFrom(fakeNames)} withdrew ${moneyFmt(randAmount())}</div>`;
+    inner.insertAdjacentHTML('beforeend', item);
+    // keep it reasonably sized
+    if(inner.childNodes.length > 200) {
+      inner.removeChild(inner.childNodes[0]);
+    }
+  }, 1000);
+}
+
+/* ---- MISC UI ---- */
+function activateTab(tab){ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab)); for(const k in panes) panes[k].style.display = (k===tab ? 'block' : 'none'); }
+function logout(){ clearSession(); renderSession(); alert('Logged out (simulation)'); }
+
+/* save display name */
+function saveDisplayName(){
+  if(!getSession()){ alert('Login first'); return; }
+  const v = el('set-display').value.trim();
+  if(!v) return alert('Enter a display name');
+  users[getSession()].display = v;
+  saveJSON(USERS_KEY, users);
+  renderSession();
+  alert('Display name saved (simulation).');
+}
+
+/* small util */
+function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* Video award on end already implemented. Optionally award mid-watch if want. */
+
+/* ---- EXTRA: allow demo login for convenience ---- */
+(function createDemoAccounts(){
+  if(Object.keys(users).length === 0){
+    users['demoUser'] = { password:'demo', balance: 120.00, display:'demoUser' };
+    users['alice'] = { password:'1234', balance: 300.00, display:'alice' };
+    users['bob'] = { password:'1234', balance: 45.00, display:'bob' };
+    saveJSON(USERS_KEY, users);
+  }
+})();
+
+/* ---- keyboard shortcuts (for fun) ---- */
+window.addEventListener('keydown', (e)=>{
+  if(e.key === '1') activateTab('home');
+  if(e.key === '2') activateTab('tasks');
+  if(e.key === '3') activateTab('posts');
+  if(e.key === '4') activateTab('withdraw');
+});
+
+/* ----- periodically mark simulated withdraws as completed after processAt ----- */
+setInterval(()=>{
+  let changed = false;
+  withdraws.forEach(w=>{
+    if(w.status === 'Pending' && Date.now() > w.processAt){
+      w.status = 'Completed';
+      changed = true;
+    }
+  });
+  if(changed) {
+    saveJSON(WDS_KEY, withdraws);
+    renderWithdraws();
+  }
+}, 5000);
+
+</script>
+</body>
+</html>
